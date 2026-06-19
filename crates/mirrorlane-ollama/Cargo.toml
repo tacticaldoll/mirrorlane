@@ -1,0 +1,16 @@
+[package]
+name = "mirrorlane-ollama"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Mirrorlane Ollama-backed LlmClient; carries the Ollama HTTP dependency."
+
+[dependencies]
+mirrorlane-llm.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+ureq.workspace = true
+
+[dev-dependencies]
+mirrorlane-core.workspace = true

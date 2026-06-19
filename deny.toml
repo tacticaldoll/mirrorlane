@@ -1,0 +1,52 @@
+# cargo-deny configuration — supply-chain gate for the mirrorlane workspace.
+# Run locally with `cargo deny check` (needs `cargo install cargo-deny`); CI runs
+# it on every push/PR via the `deny` job in .github/workflows/rust.yml. Mirrors the
+# frozen Worklane substrate's gate, so a consumer and its substrate hold the same
+# supply-chain bar.
+
+[advisories]
+# Schema v2: every advisory in the RustSec database is denied by default. Add an
+# entry to `ignore` (with a justification) only for an advisory we have consciously
+# accepted. Empty is the goal — keep it that way.
+version = 2
+ignore = []
+
+[licenses]
+# Only OSI-permissive licenses compatible with the workspace's own
+# `MIT OR Apache-2.0`, and only those actually present in the current tree, so a
+# dependency introducing a new/unvetted license fails the gate and gets a conscious
+# review.
+version = 2
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "BSL-1.0",
+    "ISC",
+    "Unicode-3.0",
+    "Zlib",
+    # The Mozilla CA root-certificate data bundled by `webpki-roots` (via `ureq`,
+    # the HTTP client behind the GitHub/Ollama/OpenAI adapters). A permissive data
+    # license, not code.
+    "CDLA-Permissive-2.0",
+]
+confidence-threshold = 0.8
+
+[bans]
+# Duplicate major versions are a warning (transitive churn we don't fully control),
+# not a hard failure.
+multiple-versions = "warn"
+# A wildcard `*` version requirement is forbidden for real dependencies — it makes
+# builds non-reproducible — but the workspace's own crates and the frozen Worklane
+# submodule are consumed by path, where a version-less requirement is expected and
+# carries no supply-chain risk.
+wildcards = "deny"
+allow-wildcard-paths = true
+
+[sources]
+# Dependencies must come from crates.io; an unknown registry or git source is a
+# supply-chain red flag.
+unknown-registry = "deny"
+unknown-git = "deny"

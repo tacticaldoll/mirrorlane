@@ -1,0 +1,85 @@
+name: Rust
+
+# The Definition of Done, run on every push and PR — the same gates the development
+# flow requires locally, plus a determinism smoke that proves the glass-box guarantee
+# end to end through the CLI. Structured like the Worklane substrate's `rust.yml`:
+# a fast, dependency-free lint gate, then the heavier build/test job.
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+concurrency:
+  group: rust-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-D warnings"
+
+jobs:
+  # Fast, dependency-free gate: formatting and lints, so a style/lint regression
+  # fails quickly before the heavier build/test job.
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Worklane is a frozen submodule consumed by path dependency — the build
+          # cannot resolve `worklane/crates/*` without it.
+          submodules: recursive
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: Format
+        run: cargo fmt --all --check
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets
+
+  # Supply-chain gate: RustSec advisories, license policy, banned/wildcard deps, and
+  # source allow-listing, all driven by deny.toml — matching the Worklane substrate's
+  # own gate so a consumer and its substrate hold the same bar.
+  deny:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The dependency tree resolves the worklane path dependencies.
+          submodules: recursive
+      - uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check advisories bans licenses sources
+
+  # Build, test, validate the spec, and prove determinism end to end.
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build
+        run: cargo build --workspace
+      - name: Test
+        run: cargo test --workspace
+      - name: OpenSpec validate
+        run: |
+          npm install -g @fission-ai/openspec
+          openspec validate --all
+      - name: Determinism smoke (verify)
+        # Ingest a message, replay it into the durable cache, then `verify` —
+        # recompute and compare. A non-zero exit means a drift the unit tests could
+        # not see (the glass-box determinism gate, run against the binary).
+        run: |
+          db="${RUNNER_TEMP}/mirrorlane-ci.db"
+          echo '{"id":"m-1","source":"discord",
+                 "author":{"id":"u-alice","display_name":"Alice"},
+                 "conversation":{"id":"c-1","thread":null},
+                 "body":"We will use sqlite for the auth sdk oauth refresh-token store."}' \
+            | cargo run -q -p mirrorlane-cli -- --db "$db" ingest
+          cargo run -q -p mirrorlane-cli -- --db "$db" replay >/dev/null
+          cargo run -q -p mirrorlane-cli -- --db "$db" verify

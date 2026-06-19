@@ -1,0 +1,15 @@
+[package]
+name = "mirrorlane-provider"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Mirrorlane projection providers: a deterministic mock now; SLM providers later."
+
+[dependencies]
+mirrorlane-runtime.workspace = true
+mirrorlane-core.workspace = true
+async-trait.workspace = true
+
+[dev-dependencies]
+tokio.workspace = true

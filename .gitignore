@@ -1,0 +1,12 @@
+/target/
+/vendor/
+/.agent/
+/.codex/
+/.claude/
+/.cursor/
+/.github/copilot-instructions.md
+*.rs.bk
+# Local durable message logs created by the CLI (default `mirrorlane.db`).
+*.db
+*.db-shm
+*.db-wal

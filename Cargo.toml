@@ -1,0 +1,42 @@
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+default-members = ["crates/*"]
+exclude = ["worklane"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+# A private application workspace — these crates are never published to crates.io
+# (the product is the binary + library, not registry packages). Marking it keeps an
+# accidental `cargo publish` from firing, and lets the supply-chain gate treat the
+# internal path dependencies as the local, version-less deps they are.
+publish = false
+
+[workspace.dependencies]
+mirrorlane-runtime = { path = "crates/mirrorlane-runtime" }
+mirrorlane-core = { path = "crates/mirrorlane-core" }
+mirrorlane-provider = { path = "crates/mirrorlane-provider" }
+mirrorlane-ollama = { path = "crates/mirrorlane-ollama" }
+mirrorlane-llm = { path = "crates/mirrorlane-llm" }
+mirrorlane-openai = { path = "crates/mirrorlane-openai" }
+mirrorlane-github = { path = "crates/mirrorlane-github" }
+mirrorlane-storage = { path = "crates/mirrorlane-storage" }
+mirrorlane-worker = { path = "crates/mirrorlane-worker" }
+worklane = { path = "worklane/crates/worklane" }
+worklane-core = { path = "worklane/crates/worklane-core" }
+worklane-memory = { path = "worklane/crates/worklane-memory" }
+worklane-sqlite = { path = "worklane/crates/worklane-sqlite" }
+worklane-postgres = { path = "worklane/crates/worklane-postgres" }
+worklane-redis = { path = "worklane/crates/worklane-redis" }
+async-trait = "0.1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rusqlite = { version = "0.40", features = ["bundled"] }
+clap = { version = "4", features = ["derive"] }
+tokio = { version = "1", features = ["rt", "rt-multi-thread", "macros"] }
+ureq = "2"
+
+# This is a pure virtual workspace — no root package. The product lives in the
+# `mirrorlane-*` crates; the demo `examples/` are hosted in `mirrorlane-cli`.

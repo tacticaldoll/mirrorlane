@@ -1,0 +1,20 @@
+[package]
+name = "mirrorlane-worker"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Mirrorlane Worklane jobs: the projection pipeline's execution layer."
+
+[dependencies]
+mirrorlane-core.workspace = true
+worklane.workspace = true
+worklane-memory.workspace = true
+worklane-sqlite.workspace = true
+serde.workspace = true
+
+[dev-dependencies]
+mirrorlane-provider.workspace = true
+worklane-core.workspace = true
+tokio.workspace = true
+serde_json.workspace = true

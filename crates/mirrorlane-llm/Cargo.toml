@@ -1,0 +1,13 @@
+[package]
+name = "mirrorlane-llm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Mirrorlane LLM provider seam: the LlmClient transport port and the provider-agnostic LlmProjector (projection prompt + parser)."
+
+[dependencies]
+mirrorlane-runtime.workspace = true
+mirrorlane-core.workspace = true
+serde.workspace = true
+serde_json.workspace = true

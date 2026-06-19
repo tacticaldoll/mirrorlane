@@ -1,0 +1,18 @@
+[package]
+name = "mirrorlane-storage"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Mirrorlane durable storage adapters (SQLite)."
+
+[dependencies]
+mirrorlane-core.workspace = true
+rusqlite.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+mirrorlane-provider.workspace = true
+mirrorlane-worker.workspace = true
+tokio.workspace = true
+tempfile = "3"
